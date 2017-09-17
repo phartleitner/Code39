@@ -7,10 +7,11 @@
  * This code may be re-used or re-distributed in any application, commercial
  * or non-commercial, free of charge provided that this credit remains intact.
  *
+ * 
  */
 
 
-class barcode {
+class Barcode {
 	protected static $code39 = array(
 	'0' => 'bwbwwwbbbwbbbwbw','1' => 'bbbwbwwwbwbwbbbw',
 	'2' => 'bwbbbwwwbwbwbbbw','3' => 'bbbwbbbwwwbwbwbw',
@@ -34,9 +35,10 @@ class barcode {
 	' ' => 'bwwwbbbwbwbbbwbw','*' => 'bwwwbwbbbwbbbwbw',
 	'$' => 'bwwwbwwwbwwwbwbw','/' => 'bwwwbwwwbwbwwwbw',
 	'+' => 'bwwwbwbwwwbwwwbw','%' => 'bwbwwwbwwwbwwwbw');
-
-
-	public static function code39($text, $height = 50, $widthScale = 1) {
+	
+	private $barcode; 
+	
+	public function __construct($text, $height = 50 , $widthScale = 1) {
 		if (!preg_match('/^[A-Z0-9-. $+\/%]+$/i', $text)) {
 			throw new Exception('Invalid text input.');
 		}
@@ -70,10 +72,31 @@ class barcode {
 		$textcenter = ($length * 8 * $widthScale) - ($length * 3);
 		
 		imageString($barcode, 2, $textcenter, $height-13, $text, $black);
-
-		header('Content-type: image/png');
-		imagePNG($barcode);
-		imageDestroy($barcode);
-		exit;
+		$this->barcode = $barcode;
+		
 	} // function code39
+	
+	/**
+	* getImage
+	*/
+	public function getCode39Image(){
+		header('Content-type: image/png');
+		imagePNG($this->barcode);
+		imageDestroy($this->barcode);
+		exit;
+		}
+	/**
+	* get image data to be stored in file or database
+	* for further usage (embed in pdf etc...)
+	* @return binary image data
+	*/
+	public function getCode39Binary() {
+		ob_start();
+		imagejpeg($this->barcode);
+		$image_data = ob_get_contents();
+		ob_end_clean();
+		return $image_data;
+		exit;
+		}
+	
 } // class barcode
